@@ -51,7 +51,8 @@ var objectivesList = [
 // effets:
 // piecesPerColor=1xG means 1 piece per Green card
 // pieces=2 means 2 pieces
-
+// piecesVictoryDiscard=1&GBx1 means 1 piece and at the end, if you have a green or blue card you gain 1 victory point per card in your discard pile
+// victoryPoints=1x2G means 1 victory point for each 2 green cards
 var cardsList = [
   {id: 1, cost: 1, effect: 'pieces=1', color: 'G', discard:'testDiscard2', power: 'testPower3', configuration: '2'},
   {id: 2, cost: 3, effect: 'pieces=1', color: 'G', discard:'testDiscard2', power: 'testPower3', configuration: '3'},
@@ -67,7 +68,15 @@ var cardsList = [
   {id: 12, cost: 2, effect: 'piecesPerColor=1xB', color: 'G', discard:'testDiscard', power: 'testPower', configuration: '2'},
   {id: 13, cost: 2, effect: 'piecesPerColor=1xP', color: 'Y', discard:'testDiscard', power: 'testPower', configuration: '2'},
   {id: 14, cost: 2, effect: 'piecesPerColor=1xG', color: 'B', discard:'testDiscard', power: 'testPower', configuration: '2'},
-  {id: 15, cost: 2, effect: 'piecesPerColor=1xY', color: 'P', discard:'testDiscard', power: 'testPower', configuration: '2'}
+  {id: 15, cost: 2, effect: 'piecesPerColor=1xY', color: 'P', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 16, cost: 4, effect: 'piecesVictoryDiscard=1&PBx1', color: 'G', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 17, cost: 4, effect: 'piecesVictoryDiscard=1&BYx1', color: 'P', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 18, cost: 4, effect: 'piecesVictoryDiscard=1&GYx1', color: 'B', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 19, cost: 4, effect: 'piecesVictoryDiscard=1&GPx1', color: 'Y', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 20, cost: 2, effect: 'victoryPoints=1x2Y', color: 'B', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 21, cost: 2, effect: 'victoryPoints=1x2P', color: 'G', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 22, cost: 2, effect: 'victoryPoints=1x2B', color: 'P', discard:'testDiscard', power: 'testPower', configuration: '2'},
+  {id: 23, cost: 2, effect: 'victoryPoints=1x2G', color: 'Y', discard:'testDiscard', power: 'testPower', configuration: '2'}
 ];
 
 // contains a copy of the state of the application, that's the object we modify and we modify the state via setState on it
@@ -129,8 +138,8 @@ class App extends React.Component {
       let p = stateCopy.players[i];
       for(let j = 0; j < p.cards.length; j++){
         let c = p.cards[j];
-        let action = c.effect.match(/(\w+)=([\w\d]+)/)[1];
-        let params = c.effect.match(/(\w+)=([\w\d]+)/)[2];
+        let action = c.effect.match(/(\w+)=(.+)/)[1];
+        let params = c.effect.match(/(\w+)=(.+)/)[2];
         switch(action){
           case 'pieces':
             p.money += parseInt(params, 10);
@@ -140,6 +149,24 @@ class App extends React.Component {
             let color = params.match(/(\d+)x(\w+)/)[2];
             for(let k = 0; k < p.cards.length; k++)
               p.money += p.cards[k].color === color ? parseInt(qtyPerColor, 10) : 0;          
+            break;
+          case 'piecesVictoryDiscard':
+            let qtyPieces = params.match(/(\d+)&(\w+)x(\d+)/)[1];          
+            p.money += parseInt(qtyPieces, 10);
+            //TODO finish victory points at the end
+            break; 
+          case 'victoryPoints':
+            let qtyVictoryPoints = params.match(/(\d+)x([\w\d]+)/)[1];
+            let cardsForVictoryPoints = params.match(/(\d+)x([\w\d]+)/)[2];
+            let numberVP = cardsForVictoryPoints.match(/[0-9]/).length > 0 ? parseInt(cardsForVictoryPoints.match(/[0-9]/)[0], 10) : 1;
+            let colorVP = cardsForVictoryPoints.match(/[YGBP]/)[0];
+            var nbCardsVP = 0;
+            for(let l = 0; l < p.cards.length; l++)
+              nbCardsVP += p.cards[l].color === colorVP ? 1 : 0;
+            if(nbCardsVP >= parseInt(numberVP, 10)){
+              // we have the required amount of cards
+              p.victoryPoints += parseInt(qtyVictoryPoints, 10) * Math.floor(nbCardsVP / parseInt(numberVP, 10));
+            }
             break;
           default:
             break;
