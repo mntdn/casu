@@ -1,0 +1,105 @@
+$green: green;
+$yellow: yellow;
+$blue: blue;
+$purple: purple;
+
+.gameState {
+    text-align: center;
+    margin: 10px;
+    font-size: 14pt;
+}
+
+.players{
+    display: flex;
+    width: 100%;
+    .player{
+        flex-grow: 1;
+        text-align: center;
+        background-color: #eee;
+        margin: 0 2px;
+        .header{
+            cursor: pointer;
+            &.alreadySelected{
+                cursor: not-allowed;
+            }
+        }
+        &.current{
+            font-weight: bold;
+            background-color: lightgreen;
+        }
+        &.alreadySelected{
+            cursor: not-allowed;
+        }
+    }
+}
+
+.clearFloat {
+    clear: both;
+}
+
+.objective{
+    border: 1px solid grey;
+    border-radius: 4px;
+    margin: 6px;
+    padding: 4px;
+    width: 150px;
+    float: left;
+    text-align: center;
+    &.attained {
+        background-color: lightgrey;
+    }
+    span{
+        display: inline-block;
+        width: 20px;
+        height: 26px;
+        text-align: center;
+        padding-top: 4px;
+        color: white;
+        font-weight: bold;
+        &.colorY{
+            color: black;
+            background-color: $yellow;
+        }
+        &.colorG{
+            background-color: $green;
+        }
+        &.colorB{
+            background-color: $blue;
+        }
+        &.colorP{
+            background-color: $purple;
+        }
+    }
+}
+
+.card{
+    border-width: 4px;
+    border-style: solid;
+    border-radius: 4px;
+    margin: 6px;
+    padding: 4px;
+    width: 150px;
+    float: left;
+    text-align: center;
+    cursor: pointer;
+    &.Y{
+        border-color: $yellow;
+    }
+    &.G{
+        border-color: $green;
+    }
+    &.B{
+        border-color: $blue;
+    }
+    &.P{
+        border-color: $purple;
+    }
+    
+    .cost, .effect, .discard, .power {
+        display: inline-block;
+        width: 100%;
+        text-align: left;
+        color: black;
+        font-weight: bold;
+    }
+}
