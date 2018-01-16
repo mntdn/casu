@@ -87,7 +87,10 @@
   width: 150px;
   float: left;
   text-align: center;
-  cursor: pointer;
+}
+
+.clickable{
+    cursor: pointer;
 }
 
 .card.Y {

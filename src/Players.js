@@ -23,7 +23,7 @@ class Players extends React.Component {
         <div className={`player ${currentClass}`} key={p.name}>
           <Objectives objectives={p.objectivesAttained} /><br className="clearFloat" />
           <Player name={p.name} money={p.money} victoryPoints={p.victoryPoints} alreadySelected={p.alreadySelected} clickCallback={this.props.clickCallback} /><br className="clearFloat" />
-          <Cards cards={p.cards} />
+          <Cards cards={p.cards} discardCallback={this.props.discardCallback} />
         </div>
       );
     }
