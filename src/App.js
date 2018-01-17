@@ -4,7 +4,7 @@ import Players from './Players';
 import Objectives from './Objectives';
 import Cards from './Cards';
 import Choice from './Choice';
-import {cardsList} from './CardList';
+import { cardsList } from './CardList';
 
 // random from min to max both included
 function randomIntFromInterval(min, max) {
@@ -27,7 +27,7 @@ var isObjectiveAttained = function (cardStack, condition) {
 }
 
 // checks if a deck of cards contains all the colors asked (for example 1B for 1 blue or 2G for 2 green)
-var colorsInDeck = function(colors, deck) {
+var colorsInDeck = function (colors, deck) {
     var nbCards = parseInt(/(\d)(\w)/.exec(colors)[1], 10);
     var color = /(\d)(\w)/.exec(colors)[2];
     for (var i = 0; i < deck.length; i++)
@@ -37,17 +37,6 @@ var colorsInDeck = function(colors, deck) {
     return nbCards === 0;
 }
 
-// var objectivesList = [
-//   {id: 1, condition:'2B', victoryPoints: 2, attained: false},
-//   {id: 2, condition:'2Y', victoryPoints: 2, attained: false},
-//   {id: 3, condition:'2P', victoryPoints: 2, attained: false},
-//   {id: 4, condition:'2G', victoryPoints: 2, attained: false},
-//   {id: 5, condition:'1G-1Y', victoryPoints: 2, attained: false},
-//   {id: 6, condition:'1Y-1B', victoryPoints: 2, attained: false},
-//   {id: 7, condition:'1P-1B', victoryPoints: 2, attained: false},
-//   {id: 8, condition:'1G-1P', victoryPoints: 2, attained: false},
-//   {id: 9, condition:'1G-1B-1P-1Y', victoryPoints: 2, attained: false}
-// ];
 var objectivesList = [
     { id: 1, condition: '3B', victoryPoints: 2, attained: false },
     { id: 2, condition: '3Y', victoryPoints: 2, attained: false },
@@ -63,15 +52,67 @@ var objectivesList = [
 // contains a copy of the state of the application, that's the object we modify and we modify the state via setState on it
 var stateCopy = {
     players: [
-        { name: 'Mat', money: 10, victoryPoints: 0, current: true, alreadySelected: true, forceStartFirst: false, cards: [], objectivesAttained: [] },
-        { name: 'Clare', money: 10, victoryPoints: 0, current: false, alreadySelected: false, forceStartFirst: false, cards: [], objectivesAttained: [] },
-        { name: 'Gaet', money: 10, victoryPoints: 0, current: false, alreadySelected: false, forceStartFirst: false, cards: [], objectivesAttained: [] },
-        { name: 'Audrey', money: 10, victoryPoints: 0, current: false, alreadySelected: false, forceStartFirst: false, cards: [], objectivesAttained: [] }
+        {
+            name: 'Mat',
+            money: 10,
+            victoryPoints: 0,
+            current: true,
+            alreadySelected: true,
+            discardMode: false,
+            forceStartFirst: false,
+            cards: [],
+            discard: [],
+            objectivesAttained: []
+        },
+        {
+            name: 'Clare',
+            money: 10,
+            victoryPoints: 0,
+            current: false,
+            alreadySelected: false,
+            discardMode: false,
+            forceStartFirst: false,
+            cards: [],
+            discard: [],
+            objectivesAttained: []
+        },
+        {
+            name: 'Gaet',
+            money: 10,
+            victoryPoints: 0,
+            current: false,
+            alreadySelected: false,
+            discardMode: false,
+            forceStartFirst: false,
+            cards: [],
+            discard: [],
+            objectivesAttained: []
+        },
+        {
+            name: 'Audrey',
+            money: 10,
+            victoryPoints: 0,
+            current: false,
+            alreadySelected: false,
+            discardMode: false,
+            forceStartFirst: false,
+            cards: [],
+            discard: [],
+            objectivesAttained: []
+        }
     ],
+
+    // for the choice box, used by the cards powers
     showChoice: false,
-    choiceFunction: () => {},
+    choiceFunction: () => { },
     choice1: '1',
     choice2: '2',
+
+    // to go into discard mode : a player choose 1 card to discard in each player's deck
+    // discardMode will contain a Json like {initiator: 1, playersToDiscard: [0,2,3], afterDiscard: (idPlayer) => {}}
+    // 1 is the id of the player that has to choose the card to discard, the array contains the remaining players that need carads discarded 
+    // afterDiscard contains a function that is going to be called after each discarded card with the player id as parameter
+    discardMode: null
 };
 
 class App extends React.Component {
@@ -81,7 +122,7 @@ class App extends React.Component {
         // copy of the initial array of cards
         this.objectiveStack = JSON.parse(JSON.stringify(objectivesList));
         // let's add unique ids to the cards
-        for(var i = 0; i < cardsList.length; i++){
+        for (var i = 0; i < cardsList.length; i++) {
             cardsList[i].id = i;
         }
         this.cardStack = JSON.parse(JSON.stringify(cardsList));
@@ -195,21 +236,21 @@ class App extends React.Component {
                 this.turnNumber++;
                 var forceFirst = -1;
                 for (let i = 0; i < stateCopy.players.length; i++)
-                    if(stateCopy.players[i].forceStartFirst)
+                    if (stateCopy.players[i].forceStartFirst)
                         forceFirst = i; // if someone has earned the right to begin first let's remember his id
                 console.log("first", forceFirst);
                 // let's make everyone selectable again
-                for (let i = 0; i < stateCopy.players.length; i++){
+                for (let i = 0; i < stateCopy.players.length; i++) {
                     stateCopy.players[i].forceStartFirst = false; // you can only start first for one turn
-                    if(forceFirst !== -1 && forceFirst === i){
+                    if (forceFirst !== -1 && forceFirst === i) {
                         // this is the player that HAS to start first
                         stateCopy.players[i].current = true;
-                        stateCopy.players[i].alreadySelected = true;                        
-                    } else if(forceFirst !== -1 && forceFirst !== i){
+                        stateCopy.players[i].alreadySelected = true;
+                    } else if (forceFirst !== -1 && forceFirst !== i) {
                         // someone has to start first and this is not you
                         stateCopy.players[i].current = false;
-                        stateCopy.players[i].alreadySelected = false;                        
-                    } else if (forceFirst === -1 && i !== posPlayer){
+                        stateCopy.players[i].alreadySelected = false;
+                    } else if (forceFirst === -1 && i !== posPlayer) {
                         // if nobody has to start first, the last one starts first
                         stateCopy.players[i].alreadySelected = false;
                     }
@@ -232,130 +273,181 @@ class App extends React.Component {
     discardCard = (cardId) => {
         // find the current player
         var posPlayer = 0;
-        var hasCard = false;
         var currentCard;
-        for (; posPlayer < stateCopy.players.length; posPlayer++) {
-            if (stateCopy.players[posPlayer].current) {
-                for (let i = 0; i < stateCopy.players[posPlayer].cards.length; i++)
-                    if (stateCopy.players[posPlayer].cards[i].id === cardId) {
-                        hasCard = true;
-                        currentCard = stateCopy.players[posPlayer].cards[i];
-                    }
-                break;
+        var currentCardPosition;
+        var discardMode = false;
+        var idCardOwner;
+        for (var i = 0; i < stateCopy.players.length; i++) {
+            for (var j = 0; j < stateCopy.players[i].cards.length; j++) {
+                if (stateCopy.players[i].cards[j].id === cardId) {
+                    posPlayer = i;
+                    discardMode = stateCopy.players[i].discardMode;
+                    currentCard = stateCopy.players[i].cards[j];
+                    currentCardPosition = j;
+                    idCardOwner = i;
+                    break;
+                }
             }
         }
-        if (hasCard) {
-            // the player possess the card he wants to play and is the current player
-            console.log("discard OK");
-            var canDiscardCard = true;
-            if (currentCard.discard.indexOf("AND") > 0) {
-                // you need both conditions
-                let nbPieces = parseInt(/(\d+)AND([\dBGYP]+)/.exec(currentCard.discard)[1], 10);
-                let cardsToHave = /(\d+)AND([\dBGYP]+)/.exec(currentCard.discard)[2];
-                if (stateCopy.players[posPlayer].money >= nbPieces) {
-                    // he can pay
-                    // we currently never have more than 1 colored card to have
-                    var cardColor = /\d([BGYP])/.exec(cardsToHave)[1];
-                    var okColorCard = false;
-                    for (var i = 0; i < stateCopy.players[posPlayer].cards.length; i++)
-                        if (stateCopy.players[posPlayer].cards[i].color === cardColor)
-                            okColorCard = true;
 
-                    if (okColorCard){
-                        console.log("You can pay")
+        if (discardMode) {
+            // in this mode, we just discard the card and call the callback after discard
+            stateCopy.players[posPlayer].cards.splice(currentCardPosition, 1);
+            stateCopy.players[posPlayer].discard.push(currentCard);
+            stateCopy.discardMode.afterDiscard(idCardOwner);
+        } else {
+            // var hasCard = false;
+            // for (; posPlayer < stateCopy.players.length; posPlayer++) {
+            //     if (stateCopy.players[posPlayer].current) {
+            //         for (let i = 0; i < stateCopy.players[posPlayer].cards.length; i++)
+            //             if (stateCopy.players[posPlayer].cards[i].id === cardId) {
+            //                 hasCard = true;
+            //                 currentCard = stateCopy.players[posPlayer].cards[i];
+            //             }
+            //         break;
+            //     }
+            // }
+            if (stateCopy.players[posPlayer].current && posPlayer === idCardOwner) {
+                // the player possess the card he wants to play and is the current player
+                console.log("discard OK");
+                var canDiscardCard = true;
+                if (currentCard.discard.indexOf("AND") > 0) {
+                    // you need both conditions
+                    let nbPieces = parseInt(/(\d+)AND([\dBGYP]+)/.exec(currentCard.discard)[1], 10);
+                    let cardsToHave = /(\d+)AND([\dBGYP]+)/.exec(currentCard.discard)[2];
+                    if (stateCopy.players[posPlayer].money >= nbPieces) {
+                        // he can pay
+                        // we currently never have more than 1 colored card to have
+                        var cardColor = /\d([BGYP])/.exec(cardsToHave)[1];
+                        var okColorCard = false;
+                        for (var i = 0; i < stateCopy.players[posPlayer].cards.length; i++)
+                            if (stateCopy.players[posPlayer].cards[i].color === cardColor)
+                                okColorCard = true;
+
+                        if (okColorCard) {
+                            console.log("You can pay")
+                        } else {
+                            console.log("pieces OK mais pas carte");
+                            canDiscardCard = false;
+                        }
                     } else {
-                        console.log("pieces OK mais pas carte");
+                        console.log("pas assez pieces")
                         canDiscardCard = false;
                     }
                 } else {
-                    console.log("pas assez pieces")
-                    canDiscardCard = false;
+                    // you need one of the 2 conditions
+                    let nbPieces = parseInt(/(\d+)OR([\dBGYP\+]+)/.exec(currentCard.discard)[1], 10);
+                    let cardsToHave = /(\d+)OR([\dBGYP\+]+)/.exec(currentCard.discard)[2];
+                    console.log(nbPieces, cardsToHave);
+                    if (stateCopy.players[posPlayer].money >= nbPieces) {
+                        console.log("C'est OK pour les pieces")
+                    }
+                    var OKAllColors = true;
+                    for (let i = 0; i < cardsToHave.split("+").length; i++) {
+                        if (!colorsInDeck(cardsToHave.split("+")[i], stateCopy.players[posPlayer].cards))
+                            OKAllColors = false;
+                    }
+                    if (!OKAllColors && stateCopy.players[posPlayer].money < nbPieces) {
+                        canDiscardCard = false;
+                    }
+                }
+
+                if (canDiscardCard) {
+                    // all is OK to discard, we can activate the power !
+                    var action = currentCard.power.match(/(\w+)=(.+)/)[1];
+                    var params = currentCard.power.match(/(\w+)=(.+)/)[2];
+                    switch (action) {
+                        case 'piecesAndVictory':
+                            stateCopy.players[posPlayer].money += parseInt(params.match(/(\d+)AND(\d+)/)[1], 10);
+                            stateCopy.players[posPlayer].victoryPoints += parseInt(params.match(/(\d+)AND(\d+)/)[2], 10);
+                            break;
+                        case 'choiceOthersLooseOrPAV':
+                            stateCopy.showChoice = true;
+                            var choix = params.match(/(.*)OR(.*)/);
+                            stateCopy.choice1 = 'Others loose ' + choix[1];
+                            stateCopy.choice2 = 'You win ' + choix[2];
+                            stateCopy.choiceFunction = (choice) => {
+                                switch (choice) {
+                                    case 1:
+                                        for (var i = 0; i < stateCopy.players.length; i++) {
+                                            if (i !== posPlayer) {
+                                                stateCopy.players[i].money -= parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
+                                                stateCopy.players[i].victoryPoints -= parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);
+                                            }
+                                        }
+                                        break;
+                                    case 2:
+                                        stateCopy.players[posPlayer].money += parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
+                                        stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                stateCopy.showChoice = false;
+                                this.setState(stateCopy);
+                            }
+                            break;
+                        case 'choiceVictoryFirstOrPAV':
+                            stateCopy.showChoice = true;
+                            var choix = params.match(/(.*)OR(.*)/);
+                            stateCopy.choice1 = 'You start first and have ' + choix[1] + ' victory points';
+                            stateCopy.choice2 = 'You have ' + choix[2];
+                            stateCopy.choiceFunction = (choice) => {
+                                switch (choice) {
+                                    case 1:
+                                        stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1], 10);
+                                        for (var i = 0; i < stateCopy.players.length; i++) {
+                                            // only the current player will start first
+                                            stateCopy.players[i].forceStartFirst = i === posPlayer;
+                                        }
+                                        break;
+                                    case 2:
+                                        stateCopy.players[posPlayer].money += parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
+                                        stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                stateCopy.showChoice = false;
+                                this.setState(stateCopy);
+                            }
+                            break;
+                        case 'discardAndVictory':
+                            var playersToDiscard = [];
+                            for (var i = 0; i < stateCopy.players.length; i++)
+                                if (i !== posPlayer) {
+                                    playersToDiscard.push(i);
+                                    stateCopy.players[i].discardMode = true;
+                                }
+                            stateCopy.discardMode = {
+                                initiator: posPlayer,
+                                playersToDiscard: playersToDiscard,
+                                afterDiscard: (idPlayer) => {
+                                    console.log("call", idPlayer);
+                                    for (var i = 0; i < stateCopy.players.length; i++)
+                                        if (i === idPlayer) {
+                                            stateCopy.players[i].victoryPoints += 2;
+                                            stateCopy.players[i].discardMode = false;
+                                            stateCopy.discardMode.playersToDiscard.splice(stateCopy.discardMode.playersToDiscard.indexOf(idPlayer), 1);
+                                        }
+                                    if (stateCopy.discardMode.playersToDiscard.length === 0) {
+                                        stateCopy.discardMode = null;
+                                    }
+                                    this.setState(stateCopy);
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    // the card has been discarded at this point
+                    stateCopy.players[posPlayer].cards.splice(currentCardPosition, 1);
+                    stateCopy.players[posPlayer].discard.push(currentCard);
+                    this.setState(stateCopy);
                 }
             } else {
-                // you need one of the 2 conditions
-                let nbPieces = parseInt(/(\d+)OR([\dBGYP\+]+)/.exec(currentCard.discard)[1], 10);
-                let cardsToHave = /(\d+)OR([\dBGYP\+]+)/.exec(currentCard.discard)[2];
-                console.log(nbPieces, cardsToHave);
-                if(stateCopy.players[posPlayer].money >= nbPieces){
-                    console.log("C'est OK pour les pieces")
-                }
-                var OKAllColors = true;
-                for(let i = 0; i < cardsToHave.split("+").length; i++){
-                    if(!colorsInDeck(cardsToHave.split("+")[i], stateCopy.players[posPlayer].cards))
-                        OKAllColors = false;
-                }
-                if(!OKAllColors && stateCopy.players[posPlayer].money < nbPieces){
-                    canDiscardCard = false;
-                }
+                console.log("discard pas OK")
             }
-
-            if(canDiscardCard){
-                // all is OK to discard, we can activate the power !
-                var action = currentCard.power.match(/(\w+)=(.+)/)[1];
-                var params = currentCard.power.match(/(\w+)=(.+)/)[2];
-                switch(action){
-                    case 'piecesAndVictory':
-                        stateCopy.players[posPlayer].money += parseInt(params.match(/(\d+)AND(\d+)/)[1], 10);
-                        stateCopy.players[posPlayer].victoryPoints += parseInt(params.match(/(\d+)AND(\d+)/)[2], 10);
-                        break;
-                    case 'choiceOthersLooseOrPAV': 
-                        stateCopy.showChoice = true;
-                        var choix = params.match(/(.*)OR(.*)/);
-                        stateCopy.choice1 = 'Others loose ' + choix[1];
-                        stateCopy.choice2 = 'You win ' + choix[2];
-                        stateCopy.choiceFunction = (choice) => {
-                            switch(choice){
-                                case 1:
-                                    for(var i = 0; i < stateCopy.players.length; i++){
-                                        if(i !== posPlayer){
-                                            stateCopy.players[i].money -= parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
-                                            stateCopy.players[i].victoryPoints -= parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);                                            
-                                        }
-                                    }
-                                    break;
-                                case 2:
-                                    stateCopy.players[posPlayer].money += parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
-                                    stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);                                            
-                                    break;
-                                default:
-                                    break;
-                            }
-                            stateCopy.showChoice = false;
-                            this.setState(stateCopy);
-                        }
-                        break;
-                    case 'choiceVictoryFirstOrPAV':
-                        stateCopy.showChoice = true;
-                        var choix = params.match(/(.*)OR(.*)/);
-                        stateCopy.choice1 = 'You start first and have ' + choix[1] + ' victory points';
-                        stateCopy.choice2 = 'You have ' + choix[2];
-                        stateCopy.choiceFunction = (choice) => {
-                            switch(choice){
-                                case 1:
-                                    stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1], 10);
-                                    for(var i = 0; i < stateCopy.players.length; i++){
-                                        // only the current player will start first
-                                        stateCopy.players[i].forceStartFirst = i === posPlayer;
-                                    }
-                                    break;
-                                case 2:
-                                    stateCopy.players[posPlayer].money += parseInt(choix[1].match(/(\d+)AND(\d+)/)[1], 10);
-                                    stateCopy.players[posPlayer].victoryPoints += parseInt(choix[1].match(/(\d+)AND(\d+)/)[2], 10);                                            
-                                    break;
-                                default:
-                                    break;
-                            }
-                            stateCopy.showChoice = false;
-                            this.setState(stateCopy);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                this.setState(stateCopy);
-            }
-        } else {
-            console.log("discard pas OK")
         }
     }
 

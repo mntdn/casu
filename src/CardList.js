@@ -15,24 +15,25 @@ power:
     piecesAndVictory=1AND2 means 1 piece and 2 victory points
     choiceOthersLooseOrPAV=1AND2OR2AND3 means either every enemy looses 1 piece and 2 victory points OR you win 2 pieces and 3 victory points
     choiceVictoryFirstOrPAV=2OR3AND2 means either you have 2 victory points and you start first next round OR you win 3 pieces and 3 victory points
+    discardAndVictory=2 means you discard 1 card for each adversary, he does not pay and does not gain the benefits but gains 2 VP
 */
 export var cardsList = [
     { cost: 1, effect: 'pieces=1', color: 'G', discard: '6OR2P', power: 'piecesAndVictory=3AND2', configuration: '2' },
     { cost: 1, effect: 'pieces=1', color: 'B', discard: '6OR2Y', power: 'piecesAndVictory=3AND2', configuration: '2' },
     { cost: 1, effect: 'pieces=1', color: 'Y', discard: '6OR2G', power: 'piecesAndVictory=3AND2', configuration: '2' },
     { cost: 1, effect: 'pieces=1', color: 'P', discard: '6OR2B', power: 'piecesAndVictory=3AND2', configuration: '2' },
-    {cost: 3, effect: 'pieces=1', color: 'G', discard:'6OR1P+1B', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3'},
-    {cost: 3, effect: 'pieces=1', color: 'B', discard:'6OR1G+1Y', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3'},
-    {cost: 3, effect: 'pieces=1', color: 'Y', discard:'6OR1G+1P', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3'},
-    {cost: 3, effect: 'pieces=1', color: 'P', discard:'6OR1B+1Y', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3'},
-    //   {cost: 4, effect: 'pieces=2', color: 'G', discard:'testDiscard2', power: 'testPower3', configuration: '2'},
-    //   {cost: 4, effect: 'pieces=2', color: 'B', discard:'testDiscard2', power: 'testPower3', configuration: '2'},
-    //   {cost: 4, effect: 'pieces=2', color: 'Y', discard:'testDiscard2', power: 'testPower3', configuration: '2'},
-    //   {cost: 4, effect: 'pieces=2', color: 'P', discard:'testDiscard2', power: 'testPower3', configuration: '2'},
-    { cost: 2, effect: 'piecesPerColor=1xB', color: 'G', discard: '5AND1P', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
-    { cost: 2, effect: 'piecesPerColor=1xP', color: 'Y', discard: '5AND1G', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
-    { cost: 2, effect: 'piecesPerColor=1xG', color: 'B', discard: '5AND1Y', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
-    { cost: 2, effect: 'piecesPerColor=1xY', color: 'P', discard: '5AND1B', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
+    { cost: 3, effect: 'pieces=1', color: 'G', discard: '6OR1P+1B', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3' },
+    { cost: 3, effect: 'pieces=1', color: 'B', discard: '6OR1G+1Y', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3' },
+    { cost: 3, effect: 'pieces=1', color: 'Y', discard: '6OR1G+1P', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3' },
+    { cost: 3, effect: 'pieces=1', color: 'P', discard: '6OR1B+1Y', power: 'choiceVictoryFirstOrPAV=2OR3AND2', configuration: '3' },
+    { cost: 4, effect: 'pieces=2', color: 'G', discard: '4AND1B', power: 'discardAndVictory=2', configuration: '2' },
+    { cost: 4, effect: 'pieces=2', color: 'B', discard: '4AND1G', power: 'discardAndVictory=2', configuration: '2' },
+    { cost: 4, effect: 'pieces=2', color: 'Y', discard: '4AND1P', power: 'discardAndVictory=2', configuration: '2' },
+    { cost: 4, effect: 'pieces=2', color: 'P', discard: '4AND1Y', power: 'discardAndVictory=2', configuration: '2' },
+    // { cost: 2, effect: 'piecesPerColor=1xB', color: 'G', discard: '5AND1P', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
+    // { cost: 2, effect: 'piecesPerColor=1xP', color: 'Y', discard: '5AND1G', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
+    // { cost: 2, effect: 'piecesPerColor=1xG', color: 'B', discard: '5AND1Y', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
+    // { cost: 2, effect: 'piecesPerColor=1xY', color: 'P', discard: '5AND1B', power: 'choiceOthersLooseOrPAV=3AND2OR3AND2', configuration: '2' },
     //   {cost: 4, effect: 'piecesVictoryDiscard=1&PBx1', color: 'G', discard:'testDiscard', power: 'testPower', configuration: '2'},
     //   {cost: 4, effect: 'piecesVictoryDiscard=1&BYx1', color: 'P', discard:'testDiscard', power: 'testPower', configuration: '2'},
     //   {cost: 4, effect: 'piecesVictoryDiscard=1&GYx1', color: 'B', discard:'testDiscard', power: 'testPower', configuration: '2'},
