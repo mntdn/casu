@@ -7,7 +7,7 @@ class Player extends React.Component {
         var alreadySelectedClass = this.props.alreadySelected ? 'alreadySelected' : '';
         return (
             <div className={`header ${alreadySelectedClass}`} onClick={() => { this.props.clickCallback(this.props.name); }}>
-                <span className="victoryPoints">{this.props.victoryPoints}</span> {this.props.name} - {this.props.money}
+                <span className="victoryPoints">{this.props.victoryPoints}</span> {this.props.name} <span className="goldpiece">{this.props.money}</span>
             </div>
         );
     }
